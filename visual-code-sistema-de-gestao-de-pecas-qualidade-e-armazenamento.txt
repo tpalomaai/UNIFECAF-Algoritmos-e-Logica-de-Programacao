@@ -1,0 +1,122 @@
+# CONTROLE DE PRODUÇÃO E QUALIDADE
+# ____________________________________________
+
+
+# DEFINIÇÃO DAS VARIÁVEIS
+# ____________________________________________
+caixa_atual = []       # Quantidade de peças na caixa
+caixas_fechadas = []   # Quantidade de caixas fechadas
+pecas_reprovadas = []  # Lista de peças reprovadas
+id_peca = 1            # Contador de ID para cada peca
+contador_caixa = 0     # Conta quantas peças estão na caixa atual
+
+# FUNÇÃO DA INSPEÇÃO DA PEÇA
+# ____________________________________________
+
+def verificar_peca(id, peso, cor, comprimento):
+    reprovada = False
+
+# --- Está dentro do peso? ---
+    if peso < 95 or peso > 105:
+        reprovada = True
+        print("  Motivo: Peso invalido:", peso, "g")
+
+# --- É azul ou verde? ---
+    if cor != "azul" and cor != "verde":
+        reprovada = True
+        print("  Motivo: Cor invalida:", cor)
+
+# --- Tem entre 10 e 20cm de comprimento? ---
+    if comprimento < 10 or comprimento > 20:
+        reprovada = True
+        print("  Motivo: Comprimento invalido:", comprimento, "cm")
+
+
+# --- Aprovada ou Reprovada? ---
+    if reprovada:
+        pecas_reprovadas.append(id)
+        print("  Resultado: REPROVADA")
+    else:
+        print("  Resultado: APROVADA")
+
+    return not reprovada
+
+
+# --- FUNÇÃO RELATÓRIO FINAL ---
+# ____________________________________________
+
+def gerar_relatorio():
+    total_caixas = len(caixas_fechadas)
+    total_aprovadas = total_caixas * 10 + contador_caixa
+    total_reprovadas = len(pecas_reprovadas)
+    total_processadas = total_aprovadas + total_reprovadas
+
+# --- Total de Peças -- 
+
+    print("")
+    print("      RELATORIO FINAL DE PRODUCAO")
+    print("Total de pecas processadas :", total_processadas)
+    print("Total de pecas aprovadas   :", total_aprovadas)
+    print("Total de pecas reprovadas  :", total_reprovadas)
+    print("Total de caixas fechadas   :", total_caixas)
+
+# --- Se sobraram peças ---
+    if contador_caixa > 0:
+        print("Pecas na caixa atual       :", contador_caixa, "(incompleta)")
+
+# --- Peças que foram reprovadas ---
+    if total_reprovadas > 0:
+        print("")
+        print("IDs das pecas reprovadas:")
+        for id in pecas_reprovadas:
+            print("  - ID", id)
+    print("")
+    print("Programa finalizado.")
+
+
+# PROCESSAMENTO PRINCIPAL
+# ____________________________________________
+
+print("")
+print("   SISTEMA DE CONTROLE DE QUALIDADE")
+print("")
+
+# --- Definição do ID da Peça ---
+while True:
+    print("--- Peca ID:", id_peca, "---")
+    print("")
+
+# --- Continua ou Para? ---
+    continua = input("Ha uma nova peca na esteira? (sim/nao): ")
+    if continua == "nao":
+        break
+
+# --- Input PESO, COR, COMPRIMENTO ---
+    peso        = int(input("  Informe o PESO da peca (g): "))
+    cor         = input("  Informe a COR da peca (azul/verde): ")
+    comprimento = int(input("  Informe o COMPRIMENTO da peca (cm): "))
+
+# --- Inspeção dos Requisitos ---
+    aprovada = verificar_peca(id_peca, peso, cor, comprimento)
+
+# --- Colocar na Caixa ---
+    if aprovada:
+        contador_caixa += 1
+        caixa_atual.append(id_peca)
+        print("  Peca adicionada a caixa. (", contador_caixa, "/10 )")
+
+# --- Quantidade máxima de peças por caixa ---
+        if contador_caixa == 10:
+            caixas_fechadas.append(list(caixa_atual))
+            print("")
+            print("  Caixa", len(caixas_fechadas), "FECHADA com 10 pecas!")
+            print("  Nova caixa aberta.")
+            caixa_atual = []
+            contador_caixa = 0
+
+# --- Definir ID da Próxima peça
+    id_peca += 1
+    print("")
+
+# --- Relatório ---
+gerar_relatorio()
